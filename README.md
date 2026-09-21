@@ -33,11 +33,18 @@ python scripts/prepare_dataset.py --input recordings/ --out dataset
 zip -r dataset.zip dataset
 ```
 
-### 2. Train model trên Colab GPU
+### 2. Train model
 
-Mở `notebooks/RVC_train_colab.ipynb` trên Colab (T4 GPU), upload `dataset.zip`, làm theo các cell. Kết quả là `my-voice.pth` + `added_*.index` — copy cả hai vào `models/`.
+**Trên máy (CPU hoặc GPU), không cần web UI:**
 
-Train cần GPU; máy CPU-only thì chỉ chạy được bước infer ở dưới.
+```bash
+python scripts/train_local.py --dataset dataset --epochs 100 --batch-size 4
+# GPU: thêm --device cuda:0
+```
+
+Script tự clone repo RVC gốc, tải hubert/rmvpe/pretrained v2, chạy preprocess → f0 → feature → train → index, rồi chép `my-voice.pth` + `my-voice.index` vào `models/`. Dataset ~2 phút, 100 epochs mất ~35 phút trên 8 CPU.
+
+**Trên Colab GPU:** mở `notebooks/RVC_train_colab.ipynb` (T4), upload `dataset.zip`, làm theo các cell. Lưu ý Colab free có thể tự ngắt runtime giữa chừng khi tài khoản hết compute unit.
 
 ### 3. Cover một bài
 
