@@ -1,0 +1,25 @@
+# Copy sang config.yaml rồi chỉnh theo bài hát của bạn.
+
+song: input/bai-hat.mp3
+workdir: output/bai-hat
+
+separate:
+  model: htdemucs        # htdemucs_ft cho chất lượng cao hơn (chậm hơn ~4x)
+  two_stems: vocals      # chỉ tách vocals / phần còn lại
+
+convert:
+  model: models/my-voice.pth
+  index: models/my-voice.index   # để trống nếu chưa có file .index
+  device: cpu:0                  # cuda:0 nếu có GPU
+  f0method: rmvpe                # rmvpe > crepe > harvest > pm (độ chính xác cao pitch)
+  f0up_key: 0                    # +12 nếu bài nam -> giọng nữ, -12 cho chiều ngược lại
+  index_rate: 0.6                # 0..1, cao = bám timbre model hơn, dễ bị artifact
+  protect: 0.33                  # bảo vệ phụ âm/hơi thở, 0.5 = tắt
+  filter_radius: 3
+  rms_mix_rate: 0.25             # 0 = giữ động lực gốc, 1 = theo model
+
+mix:
+  vocal_gain_db: 0.0
+  inst_gain_db: -1.0
+  target_lufs: -14.0             # chuẩn loudness streaming; null = bỏ qua normalize
+  reverb: light                  # none | light | hall

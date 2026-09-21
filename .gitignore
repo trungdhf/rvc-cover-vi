@@ -1,0 +1,11 @@
+.venv/
+__pycache__/
+config.yaml
+dataset/
+*.zip
+models/*
+!models/.gitkeep
+input/*
+!input/.gitkeep
+output/*
+!output/.gitkeep
