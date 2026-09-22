@@ -84,7 +84,7 @@ def main() -> None:
     ap = argparse.ArgumentParser()
     ap.add_argument("--dataset", required=True, help="Thư mục wav đã cắt (output của prepare_dataset.py)")
     ap.add_argument("--rvc-dir", default="rvc-src", help="Nơi clone repo RVC gốc")
-    ap.add_argument("--name", default="my-voice")
+    ap.add_argument("--name", default="phien-singer")
     ap.add_argument("--sr", default="40k", choices=list(SR_MAP))
     ap.add_argument("--epochs", type=int, default=100)
     ap.add_argument("--batch-size", type=int, default=4)

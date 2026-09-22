@@ -42,7 +42,7 @@ python scripts/train_local.py --dataset dataset --epochs 100 --batch-size 4
 # GPU: thêm --device cuda:0
 ```
 
-Script tự clone repo RVC gốc, tải hubert/rmvpe/pretrained v2, chạy preprocess → f0 → feature → train → index, rồi chép `my-voice.pth` + `my-voice.index` vào `models/`. Dataset ~2 phút, 100 epochs mất ~35 phút trên 8 CPU.
+Script tự clone repo RVC gốc, tải hubert/rmvpe/pretrained v2, chạy preprocess → f0 → feature → train → index, rồi chép `phien-singer.pth` + `phien-singer.index` vào `models/`. Dataset ~2 phút, 100 epochs mất ~35 phút trên 8 CPU.
 
 **Trên Colab GPU:** mở `notebooks/RVC_train_colab.ipynb` (T4), upload `dataset.zip`, làm theo các cell. Lưu ý Colab free có thể tự ngắt runtime giữa chừng khi tài khoản hết compute unit.
 
@@ -67,7 +67,7 @@ Kết quả nằm trong `output/<tên bài>/`: `vocals.wav`, `instrumental.wav`,
 
 ## Model sẵn có trong repo
 
-`models/my-voice2.pth` + `models/my-voice2.index` (lưu bằng Git LFS) là model đã train sẵn. Clone xong nhớ kéo file LFS về:
+`models/phien-singer.pth` + `models/phien-singer.index` (lưu bằng Git LFS) là model đã train sẵn. Clone xong nhớ kéo file LFS về:
 
 ```bash
 git lfs install
@@ -76,8 +76,8 @@ git lfs pull
 
 | File | Dataset | Ghi chú |
 |---|---|---|
-| `my-voice2.pth` / `.index` | 6.7 phút, 80 epochs | bản đang dùng |
-| `my-voice.pth` / `.index` | 2.1 phút, 100 epochs | bản đầu, giữ để so sánh |
+| `phien-singer.pth` / `.index` | 6.7 phút, 80 epochs | bản đang dùng |
+| `phien-singer-v1.pth` / `.index` | 2.1 phút, 100 epochs | bản đầu, giữ để so sánh |
 
 ## Tạo mp3 giọng model từ một file audio
 
@@ -95,8 +95,8 @@ separate:
   model: htdemucs
   two_stems: vocals
 convert:
-  model: models/my-voice2.pth
-  index: models/my-voice2.index
+  model: models/phien-singer.pth
+  index: models/phien-singer.index
   device: cpu:0        # GPU: cuda:0
   f0method: rmvpe
   f0up_key: 0

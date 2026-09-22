@@ -8,8 +8,8 @@ separate:
   two_stems: vocals      # chỉ tách vocals / phần còn lại
 
 convert:
-  model: models/my-voice.pth
-  index: models/my-voice.index   # để trống nếu chưa có file .index
+  model: models/phien-singer.pth
+  index: models/phien-singer.index   # để trống nếu chưa có file .index
   device: cpu:0                  # cuda:0 nếu có GPU
   f0method: rmvpe                # rmvpe > crepe > harvest > pm (độ chính xác cao pitch)
   f0up_key: 0                    # +12 nếu bài nam -> giọng nữ, -12 cho chiều ngược lại
