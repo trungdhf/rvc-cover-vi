@@ -6,7 +6,6 @@ Dùng repo RVC gốc ở chế độ dòng lệnh: preprocess -> f0 -> hubert ->
 from __future__ import annotations
 
 import argparse
-import copy
 import json
 import os
 import shutil
@@ -46,6 +45,11 @@ def ensure_rvc(rvc_dir: Path) -> None:
         shutil.unpack_archive(str(zip_path), str(rvc_dir / "logs"))
 
 
+def rvc_python(rvc_dir: Path) -> str:
+    venv = rvc_dir / ".venv" / "bin" / "python"
+    return str(venv) if venv.exists() else sys.executable
+
+
 def write_filelist(rvc_dir: Path, name: str, sr: str) -> None:
     exp_dir = rvc_dir / "logs" / name
     gt, feat = exp_dir / "0_gt_wavs", exp_dir / "3_feature768"
@@ -68,10 +72,8 @@ def write_filelist(rvc_dir: Path, name: str, sr: str) -> None:
     shuffle(lines)
     (exp_dir / "filelist.txt").write_text("\n".join(lines), encoding="utf-8")
 
-    sys.path.insert(0, str(rvc_dir))
-    from configs.config import Config
-
-    cfg = copy.deepcopy(Config().json_config[f"v1/{sr}.json" if sr == "40k" else f"v2/{sr}.json"])
+    src = rvc_dir / "configs" / ("v1" if sr == "40k" else "v2") / f"{sr}.json"
+    cfg = json.loads(src.read_text(encoding="utf-8"))
     cfg.pop("speaker_info", None)
     (exp_dir / "config.json").write_text(
         json.dumps(cfg, ensure_ascii=False, indent=4, sort_keys=True) + "\n", encoding="utf-8"
@@ -90,6 +92,7 @@ def main() -> None:
     ap.add_argument("--device", default="cpu", help="cpu hoặc cuda:0")
     ap.add_argument("--workers", type=int, default=os.cpu_count() or 4)
     ap.add_argument("--out", default="models", help="Thư mục chép .pth + .index sau khi train")
+    ap.add_argument("--python", default="", help="Python dùng để chạy RVC (mặc định: venv trong --rvc-dir)")
     args = ap.parse_args()
 
     rvc_dir = Path(args.rvc_dir).resolve()
@@ -99,7 +102,7 @@ def main() -> None:
     exp_dir = rvc_dir / "logs" / args.name
     exp_dir.mkdir(parents=True, exist_ok=True)
     env = {**os.environ, "PYTHONPATH": str(rvc_dir)}
-    py = [sys.executable, "-m"]
+    py = [args.python or rvc_python(rvc_dir), "-m"]
     dataset = Path(args.dataset).resolve()
     cuda = args.device.startswith("cuda")
 
@@ -109,8 +112,10 @@ def main() -> None:
         sh(py + ["train.dataset.extract_f0", "cuda", "1", "0", "0", str(exp_dir), "True"], rvc_dir, env)
     else:
         sh(py + ["train.dataset.extract_f0", "cpu", str(exp_dir), str(args.workers), "rmvpe"], rvc_dir, env)
-    sh(py + ["train.dataset.extract_hubert_feature", args.device, "1", "0", "0",
-             str(exp_dir), "v2", "True" if cuda else "False"], rvc_dir, env)
+    feat_cmd = py + ["train.dataset.extract_hubert_feature", args.device, "1", "0"]
+    if cuda:
+        feat_cmd += ["0"]
+    sh(feat_cmd + [str(exp_dir), "v2", "True" if cuda else "False"], rvc_dir, env)
 
     write_filelist(rvc_dir, args.name, args.sr)
 
