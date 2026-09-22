@@ -78,7 +78,7 @@ git lfs pull
 |---|---|---|
 | `phien-singer.pth` / `.index` | 6.7 phút, 80 epochs | bản đang dùng |
 | `phien-singer-v1.pth` / `.index` | 2.1 phút, 100 epochs | bản đầu, giữ để so sánh |
-| `phien-speaker.pth` / `.index` | 1.6 phút giọng đọc, 120 epochs | dùng cho giọng nói/đọc |
+| `phien-speaker.pth` / `.index` | 7.3 phút giọng đọc, 100 epochs | dùng cho giọng nói/đọc |
 
 Với giọng đọc nên hạ `index_rate` ~0.2-0.3 và nâng `protect` ~0.4-0.5 cho tự nhiên hơn.
 
