@@ -65,6 +65,69 @@ python scripts/mix.py      --config config.yaml
 
 Kết quả nằm trong `output/<tên bài>/`: `vocals.wav`, `instrumental.wav`, `vocals_converted.wav`, `cover.wav`, `cover.mp3`.
 
+## Model sẵn có trong repo
+
+`models/my-voice2.pth` + `models/my-voice2.index` (lưu bằng Git LFS) là model đã train sẵn. Clone xong nhớ kéo file LFS về:
+
+```bash
+git lfs install
+git lfs pull
+```
+
+| File | Dataset | Ghi chú |
+|---|---|---|
+| `my-voice2.pth` / `.index` | 6.7 phút, 80 epochs | bản đang dùng |
+| `my-voice.pth` / `.index` | 2.1 phút, 100 epochs | bản đầu, giữ để so sánh |
+
+## Tạo mp3 giọng model từ một file audio
+
+Dùng khi đã có sẵn vocal (a cappella, file thu, hoặc stem vocal) và chỉ muốn đổi sang giọng model:
+
+```bash
+source .venv/bin/activate
+mkdir -p output/mybai
+ffmpeg -y -i nguon.mp3 -ar 44100 -ac 2 output/mybai/vocals.wav   # bỏ qua bước separate
+
+cat > config.mybai.yaml <<'YAML'
+song: input/nguon.mp3
+workdir: output/mybai
+separate:
+  model: htdemucs
+  two_stems: vocals
+convert:
+  model: models/my-voice2.pth
+  index: models/my-voice2.index
+  device: cpu:0        # GPU: cuda:0
+  f0method: rmvpe
+  f0up_key: 0
+  index_rate: 0.35
+  protect: 0.33
+  filter_radius: 3
+  rms_mix_rate: 0.25
+mix:
+  vocal_gain_db: 0.0
+  inst_gain_db: -1.0
+  target_lufs: -14.0
+  reverb: light
+YAML
+
+python scripts/convert.py --config config.mybai.yaml --chunk-sec 30
+```
+
+Ra `output/mybai/vocals_converted.wav`. Xuất mp3:
+
+```bash
+# vocal khô
+ffmpeg -y -i output/mybai/vocals_converted.wav -b:a 320k cover_vocal.mp3
+# thêm reverb nhẹ + chuẩn hoá loudness
+ffmpeg -y -i output/mybai/vocals_converted.wav \
+  -af "aecho=0.8:0.85:40:0.18,loudnorm=I=-14:TP=-1.5:LRA=11" -b:a 320k cover_vocal.mp3
+```
+
+Có nhạc nền riêng thì chép vào `output/mybai/instrumental.wav` rồi chạy `python scripts/mix.py --config config.mybai.yaml` → `output/mybai/cover.mp3`.
+
+Nếu file nguồn còn dính nhạc/guitar thì chạy `python scripts/separate.py --config config.mybai.yaml` trước thay cho bước ffmpeg ở trên; Demucs sẽ tạo luôn cả `vocals.wav` lẫn `instrumental.wav`.
+
 ## Chỉnh chất lượng
 
 | Triệu chứng | Tham số cần sửa |
